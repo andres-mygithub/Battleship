@@ -90,7 +90,7 @@ public class Battleship {
         computerShips = generateComputerShips(userX, userY, computerX, computerY, userHitList, compHitList);
         deployComputerShips();
 
-        while (!checkWinner(userHitList) || !checkWinner(compHitList))
+        while (!checkWinner(userHitList) && !checkWinner(compHitList))
         {
             System.out.println("HERE");
             userBattle(computerX, computerY, userX, userY, userHitList, compHitList, userGuessX, userGuessY, compGuessX, compGuessY);
@@ -555,14 +555,11 @@ public class Battleship {
     {
         int count = 0;
 
-        for (int i = 0; i < arr.size(); i++)
-        {
-            if (arr.get(i) == -1) count++;
-        }
+        for (int i = 0; i < arr.size(); i++) if (arr.get(i) == -1) count++;
 
-        if (count == -1) return true;
-        else
-            return false;
+        if (count == 5) return true;
+        else return false;
     }
 
 }
+
