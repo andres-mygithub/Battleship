@@ -1,6 +1,8 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 public class Battleship {
     public static void main(String[] args)
@@ -27,49 +29,27 @@ public class Battleship {
 
         Scanner input = new Scanner(System.in);
 
-        System.out.print("Enter X coordinate for your ship: ");
-        int x = input.nextInt();
+        //printArray(userX, userY);
 
-        System.out.print("Enter Y coordinate for your ship: ");
-        int y = input.nextInt();
+        for (int i = 0; i < 5; i++) {
 
-        userX.add(x);
-        userY.add(y);
-        printArray(userX, userY);
+            System.out.print("Enter X coordinate for your ship " + (i + 1) + ": ");
+            int x = input.nextInt();
 
-        for (int i = 0; i < 4; i++) {
+            System.out.print("Enter Y coordinate for your ship " + (i + 1) + ": ");
+            int y = input.nextInt();
 
-            if (userX.size() > 0 && userY.size() > 0)
+            while(!isValid(userX, userY, x, y))
             {
-
-                System.out.print("Enter X coordinate for your ship: ");
+                System.out.print("Enter X coordinate for your ship " + (i + 1) + ": ");
                 x = input.nextInt();
 
-                System.out.print("Enter Y coordinate for your ship: ");
+                System.out.print("Enter Y coordinate for your ship " + (i + 1) + ": ");
                 y = input.nextInt();
-
-
-                while (((userX.indexOf(x) != -1 && userY.indexOf(y) != -1) && (userX.indexOf(x) == userY.indexOf(y)))
-                        || x > 9 || x < 0 || y > 9 || y < 0)
-                {
-                    System.out.println("Invalid entry. Please choose another value.");
-
-                    if (x > 10) System.out.println("Your X coordinate cannot be greater than 10.");
-                    else if (x < 0) System.out.println("Your X coordinate cannot be less than 0.");
-                    if (y > 10) System.out.println("Your Y coordinate cannot be greater than 10.");
-                    else if (y < 0) System.out.println("Your Y coordinate cannot be less than 0.");
-
-                    System.out.print("Enter X coordinate for your ship: ");
-                    x = input.nextInt();
-
-                    System.out.print("Enter Y coordinate for your ship: ");
-                    y = input.nextInt();
-
-                }
-                userX.add(x);
-                userY.add(y);
             }
-            printArray(userX, userY);
+            if (isValid(userX, userY, x, y)) {userX.add(x); userY.add(y);}
+
+            //printArray(userX, userY);
         }
 
         ArrayList<Integer> userHitList = new ArrayList<Integer>();
@@ -90,21 +70,81 @@ public class Battleship {
         computerShips = generateComputerShips(userX, userY, computerX, computerY, userHitList, compHitList);
         deployComputerShips();
 
+        //Print out user and computer guesses
+        System.out.print("Your ships x-coords: ");
+        printSimpleArray(userX);
+        System.out.print("Your ships y-coords: ");
+        printSimpleArray(userY);
+
         while (!checkWinner(userHitList) && !checkWinner(compHitList))
         {
-            System.out.println("HERE");
             userBattle(computerX, computerY, userX, userY, userHitList, compHitList, userGuessX, userGuessY, compGuessX, compGuessY);
-            compBattle(computerX, computerY, userX, userY, userHitList, compHitList, compGuessX, compGuessY, userGuessX, userGuessY);
+            //Wait three seconds before executing code
+            try {
+                TimeUnit.SECONDS.sleep(3);
+                compBattle(computerX, computerY, userX, userY, userHitList, compHitList, compGuessX, compGuessY, userGuessX, userGuessY);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-            System.out.print("This is user list: ");
+            /*Print out user and computer guesses
+            System.out.print("User x: ");
+            printSimpleArray(userX);
+            System.out.print("User y: ");
+            printSimpleArray(userY);
+            */
+
+            System.out.print("User guesses X: ");
+            printSimpleArray(userGuessX);
+            System.out.print("User guesses Y: ");
+            printSimpleArray(userGuessY);
+
+            /*
+            System.out.print("User HitList: ");
             printSimpleArray(userHitList);
-            System.out.print("This is comp list: ");
+
+            System.out.print("Computer x: ");
+            printSimpleArray(computerX);
+            System.out.print("Computer y: ");
+            printSimpleArray(computerY);
+
+            System.out.print("Comp guesses X: ");
+            printSimpleArray(compGuessX);
+            System.out.print("Comp guesses Y: ");
+            printSimpleArray(compGuessY);
+
+            System.out.print("Comp HitList: ");
             printSimpleArray(compHitList);
-            printGrid(userX, userY, computerX, computerY, userHitList, compHitList);
+            System.out.println();
+            */
+
+            //Wait three seconds before printing the new grid
+            try {
+                TimeUnit.SECONDS.sleep(3);
+                printGrid(userX, userY, computerX, computerY, userHitList, compHitList);
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         if (checkWinner(userHitList)) System.out.println("Hooray! You won!");
         else System.out.println("Sorry, computer won.");
+    }
+
+    private static boolean isValid(ArrayList<Integer> userX, ArrayList<Integer> userY, int x, int y)
+    {
+        while (x > 9 || x < 0 || y > 9 || y < 0)
+        {
+            System.out.println("Invalid entry. Please choose another value.");
+            if (x > 10) System.out.println("Your X coordinate cannot be greater than 10.");
+            else if (x < 0) System.out.println("Your X coordinate cannot be less than 0.");
+            if (y > 10) System.out.println("Your Y coordinate cannot be greater than 10.");
+            else if (y < 0) System.out.println("Your Y coordinate cannot be less than 0.");
+            return false;
+        }
+
+        return true;
     }
 
     public static void printGrid()
@@ -130,8 +170,8 @@ public class Battleship {
 
     public static void printGrid(ArrayList<Integer> x, ArrayList<Integer> y)
     {
-        System.out.println("**** This is what the grid looks like ****");
-        System.out.println();
+        System.out.println("\n**** This is what the grid looks like ****");
+        System.out.println("User: @    Comp: #\n");
 
         boolean skip = false;
         boolean hasShip = false;
@@ -184,6 +224,7 @@ public class Battleship {
         boolean skip = false;
         boolean hasShip = false;
 
+        /*Print out user and computer guesses
         System.out.print("User x: ");
         printSimpleArray(userX);
         System.out.print("User y: ");
@@ -200,6 +241,9 @@ public class Battleship {
         System.out.print("Comp HitList: ");
         printSimpleArray(compHitList);
         System.out.println();
+        */
+
+        System.out.println("\nUser: @    Comp: #\n");
 
         for (int i = 0; i <= 11; i++)
         {
@@ -236,7 +280,8 @@ public class Battleship {
                         else if (computerX.get(idx) == j && computerY.get(idx) == (i - 1))
                         {
                             //System.out.print("[" + x.get(idx) + "," + y.get(idx) + "]");
-                            System.out.print("#");
+                            //System.out.print("#");
+                            System.out.print(" ");
                             hasShip = true;
                         }
                     }
@@ -244,7 +289,7 @@ public class Battleship {
                     {
                         //System.out.print(j);
                         System.out.print(" ");
-                        hasShip = true;
+                        hasShip = false;
                     }
                 }
                 if (i > 0 && i < 11 &&  j == 9) System.out.print("| " + (i - 1));
@@ -314,7 +359,7 @@ public class Battleship {
 
     private static void deployComputerShips()
     {
-        System.out.println("Computer is deploying ships");
+        System.out.println("\nComputer is deploying ships");
         System.out.println("1. ship DEPLOYED");
         System.out.println("2. ship DEPLOYED");
         System.out.println("3. ship DEPLOYED");
@@ -361,9 +406,9 @@ public class Battleship {
             computerShips.add(computerY.get(j));
         }
 
-
+        //Print out Computer's guesses
         //printCompArray(computerX, computerY);
-        printGrid(userX, userY, computerX, computerY, userHitList, compHitList);
+        //printGrid(userX, userY, computerX, computerY, userHitList, compHitList);
         return computerShips;
     }
 
@@ -376,7 +421,7 @@ public class Battleship {
         Scanner in = new Scanner(System.in);
         int x = 0, y = 0;
 
-        System.out.println("YOUR TURN");
+        System.out.println("\nYOUR TURN");
         System.out.print("Enter X coordinate: ");
         x = in.nextInt();
         System.out.print("Enter Y coordinate: ");
@@ -384,6 +429,15 @@ public class Battleship {
         System.out.println();
 
         boolean beenGuessed = true;
+
+        while(!isValid(userX, userY, x, y))
+        {
+            System.out.print("Enter X coordinate for your ship: ");
+            x = in.nextInt();
+
+            System.out.print("Enter Y coordinate for your ship: ");
+            y = in.nextInt();
+        }
 
         while(beenGuessed)
         {
@@ -394,9 +448,11 @@ public class Battleship {
                 {
                     if (y == userGuessY.get(i))
                     {
-                        System.out.print("Sorry, you already guessed that coordinate.");
-                        System.out.println("Please try again.");
-                        System.out.println("Enter X coordinate: ");
+                        System.out.println("***********************************************");
+                        System.out.println("* Sorry, you already guessed that coordinate. *");
+                        System.out.println("* Please try again.                           *");
+                        System.out.println("***********************************************");
+                        System.out.println("\nEnter X coordinate: ");
                         x = in.nextInt();
                         System.out.println("Enter Y coordinate: ");
                         y = in.nextInt();
@@ -415,9 +471,11 @@ public class Battleship {
                     {
                         beenGuessed = true;
 
-                        System.out.print("Sorry, the computer already guessed that coordinate.");
-                        System.out.println("Please try again.");
-                        System.out.println("Enter X coordinate: ");
+                        System.out.println("********************************************************");
+                        System.out.println("* Sorry, the computer already guessed that coordinate. *");
+                        System.out.println("* Please try again.                                    *");
+                        System.out.println("********************************************************");
+                        System.out.println("\nEnter X coordinate: ");
                         x = in.nextInt();
                         System.out.println("Enter Y coordinate: ");
                         y = in.nextInt();
@@ -427,21 +485,32 @@ public class Battleship {
             }
         }
 
-        userGuessX.add(x);
-        userGuessY.add(y);
+        if (isValid(userX, userY, x, y)) {userGuessX.add(x); userGuessY.add(y);}
 
+        //Prints out user guesses
+        /*
         System.out.print("User guesses: ");
         printSimpleArray(userGuessX);
         System.out.print("              ");
         printSimpleArray(userGuessY);
+        */
 
         //Check if user guessed correctly
-        for (int i = 0; i < userX.size(); i++)
+        for (int i = 0; i <= userX.size(); i++)
         {
-            if (x == compX.get(i)) {
+            if (i == userX.size())
+            {
+                System.out.println("*********************");
+                System.out.println("* Sorry, you missed *");
+                System.out.println("*********************");
+                break;
+            }
+            else if (x == compX.get(i)) {
                 if (y == compY.get(i)) {
                     userHitList.set(i, -1);
-                    System.out.println("Boom! You sunk the ship!");
+                    System.out.println("****************************");
+                    System.out.println("* Boom! You sunk the ship! *");
+                    System.out.println("****************************");
                     break;
                 }
             }
@@ -449,15 +518,12 @@ public class Battleship {
             {
                 if (y == userY.get(i))
                 {
-                    System.out.println("Oh no, you sunk your own ship :(");
+                    System.out.println("************************************");
+                    System.out.println("* Oh no, you sunk your own ship :( *");
+                    System.out.println("************************************");
                     compHitList.set(i, -1);
                     break;
                 }
-            }
-            else if (i == userX.size())
-            {
-                System.out.println("Sorry, you missed");
-                break;
             }
         }
     }
@@ -474,7 +540,7 @@ public class Battleship {
         x = random.nextInt(9);
         y = random.nextInt(9);
 
-        System.out.println("COMPUTER'S TURN");
+        System.out.println("\nCOMPUTER'S TURN\n");
 
         boolean beenGuessed = true;
 
@@ -483,7 +549,6 @@ public class Battleship {
             //Check if coordinates have already been guessed
             for (int i = 0; i < compGuessX.size(); i++)
             {
-                System.out.println("Inside 1st Loop");
                 if (x == compGuessX.get(i))
                 {
                     if (y == compGuessY.get(i))
@@ -515,6 +580,8 @@ public class Battleship {
         compGuessX.add(x);
         compGuessY.add(y);
 
+        //Check to see what Computer is guessing
+        /*
         System.out.print("Computer guesses: ");
         printSimpleArray(compGuessX);
         System.out.print("                  ");
@@ -522,32 +589,38 @@ public class Battleship {
 
         System.out.println("Computer X: " + x);
         System.out.println("Computer Y: " + y);
+        */
 
         //Check if user guessed correctly
-        for (int i = 0; i < compX.size(); i++)
+        for (int i = 0; i <= compX.size(); i++)
         {
-            if (x == compX.get(i)) {
-                if (y == compY.get(i)) {
-                    compHitList.set(i, -1);
-                    System.out.println("The Computer sunk your ship.");
-                    break;
-                }
-            }
-            else if (x == userX.get(i))
+            if(i == compX.size())
             {
-                if (y == userY.get(i))
-                {
-                    userHitList.set(i, -1);
-                    System.out.println("The Computer sunk one of its own ships!");
-                    break;
-                }
-            }
-            else if (i == compX.size() - 1)
-            {
-                System.out.println("Computer missed");
+                System.out.println("*******************");
+                System.out.println("* Computer missed *");
+                System.out.println("*******************");
                 break;
             }
-
+            else if (x == userX.get(i)) {
+                if (y == userY.get(i)) {
+                    compHitList.set(i, -1);
+                    System.out.println("********************************");
+                    System.out.println("* The Computer sunk your ship. *");
+                    System.out.println("********************************");
+                    break;
+                }
+            }
+            else if (x == compX.get(i))
+            {
+                if (y == compY.get(i))
+                {
+                    userHitList.set(i, -1);
+                    System.out.println("*******************************************");
+                    System.out.println("* The Computer sunk one of its own ships! *");
+                    System.out.println("*******************************************");
+                    break;
+                }
+            }
         }
     }
 
@@ -562,4 +635,3 @@ public class Battleship {
     }
 
 }
-
